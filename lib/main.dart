@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 void main() {
   runApp(CalculatorApp());
@@ -31,7 +32,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   String _result = '';
 
   void _addToExpression(String value) {
-    List<String> operators = ['+', '-', '*', '/'];
+    List<String> operators = ['+', '-', '*', '/', '^']; // Added '^' for exponentiation
     setState(() {
       if (_expression.isNotEmpty && operators.contains(value)) {
         _expression += ' ';
@@ -60,7 +61,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   double evalExpression(String expression) {
     List<String> tokens = expression.split(' ');
-    List<String> operators = ['+', '-', '*', '/'];
+    List<String> operators = ['+', '-', '*', '/', '^']; // Added '^' for exponentiation
     List<String> output = [];
     List<String> stack = [];
 
@@ -89,13 +90,15 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       return 1;
     } else if (operator == '*' || operator == '/') {
       return 2;
+    } else if (operator == '^') { // Added precedence for '^' (exponentiation)
+      return 3;
     } else {
       return 0;
     }
   }
 
   double evaluatePostfix(List<String> postfix) {
-    List<String> operators = ['+', '-', '*', '/'];
+    List<String> operators = ['+', '-', '*', '/', '^']; // Added '^' for exponentiation
     List<double> stack = [];
     double result;
 
@@ -118,6 +121,12 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
         } else if (token == '/') {
           result = operand1 / operand2;
           stack.add(result);
+        } else if (token == '^') { // Added case for '^' (exponentiation)
+          result = operand1;
+          for (int i = 0; i < operand2 - 1; i++) {
+            result *= operand1;
+          }
+          stack.add(result);
         }
       }
     }
@@ -136,7 +145,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Andrew Langille'),
+        title: Text('Simple Calculator'),
       ),
       body: Container(
         width: 400, // Set the desired width constraint
@@ -225,6 +234,10 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
                 CalculatorButton(
                   text: 'C',
                   onPressed: _clearExpression,
+                ),
+                CalculatorButton(
+                  text: '^', // Added button for exponentiation
+                  onPressed: () => _addToExpression('^'),
                 ),
               ],
             ),
